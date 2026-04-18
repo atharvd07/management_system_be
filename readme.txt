@@ -14,3 +14,7 @@ both Local and Remote branch should be same "main"
 
 Remote Branch: Below repo name you can see branches like Main, Master... Select main from that
 Local Branch: When you click on "Push Head" then under branch field mention "main" if master or anything else is there.
+
+Notes:
+First commit and then push head so you can see sourch and destination branches
+Main tabs on STS: Git Repository, Git Staging
