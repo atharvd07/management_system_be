@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.ad.security.JwtUtil;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,6 +26,10 @@ public class UserController {
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtil jwtUtil;
 //	START: signup
     @PostMapping("/signup")
     public User signup(
@@ -43,7 +50,8 @@ public class UserController {
         user.setDob(dob);
         user.setMobileNo(mobileNo);
         user.setEmail(email);
-        user.setPassword(password);
+        //user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
 
         // If profile photo is present, save it
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -72,11 +80,17 @@ public class UserController {
     public ResponseEntity<Map<String, String>> login(@RequestBody User user) {
         Optional<User> foundUser = userService.findByEmail(user.getEmail());
 
-        if (foundUser.isPresent() && foundUser.get().getPassword().equals(user.getPassword())) {
+        if (foundUser.isPresent() &&
+        	    passwordEncoder.matches(
+        	        user.getPassword(),
+        	        foundUser.get().getPassword()
+        	    )) {
+        	String token = jwtUtil.generateToken(foundUser.get().getEmail());
             // Prepare the response data with name and email
             Map<String, String> response = new HashMap<>();
             String photoUrl = "http://localhost:8080/uploads/" + foundUser.get().getProfilePhoto();
 //            To send data 
+            response.put("token", token);
             response.put("name", foundUser.get().getName());  // Add user name
             response.put("email", foundUser.get().getEmail());  // Add user email
             response.put("dob", foundUser.get().getDob());

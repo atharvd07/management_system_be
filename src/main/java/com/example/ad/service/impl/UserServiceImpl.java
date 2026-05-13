@@ -13,10 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
-
+	@Autowired
+	private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
 

@@ -18,3 +18,7 @@ Local Branch: When you click on "Push Head" then under branch field mention "mai
 Notes:
 First commit and then push head so you can see sourch and destination branches
 Main tabs on STS: Git Repository, Git Staging
+
+harrypotter@hogwarts.com 12
+atharv@gmail.com 12
+hermioneg@hogwarts.com 22
