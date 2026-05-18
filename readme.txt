@@ -19,6 +19,16 @@ Notes:
 First commit and then push head so you can see sourch and destination branches
 Main tabs on STS: Git Repository, Git Staging
 
-harrypotter@hogwarts.com 12
-atharv@gmail.com 12
-hermioneg@hogwarts.com 22
+CREATE TABLE feedback (
+    feedback_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    feedback_dept VARCHAR(50) NOT NULL,
+    feedback_details VARCHAR(1000) NOT NULL
+);
+
+select * from feedback
+select f.feedback_id, f.user_id, u.name, f.feedback_dept, f.feedback_details from feedback f join users u on f.user_id= u.id
+
+adminprofile@gmail.com 1234567890
+usera@gmail.com 11
+userb@gmail.com 22

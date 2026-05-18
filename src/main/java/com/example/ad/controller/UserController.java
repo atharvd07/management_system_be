@@ -91,6 +91,9 @@ public class UserController {
             String photoUrl = "http://localhost:8080/uploads/" + foundUser.get().getProfilePhoto();
 //            To send data 
             response.put("token", token);
+            response.put("id", String.valueOf(
+                    foundUser.get().getId()
+            	    ));
             response.put("name", foundUser.get().getName());  // Add user name
             response.put("email", foundUser.get().getEmail());  // Add user email
             response.put("dob", foundUser.get().getDob());
@@ -105,6 +108,13 @@ public class UserController {
         }
     }
 //	END: login 
+    @GetMapping("/dashboard")
+    public ResponseEntity<String> dashboard() {
+
+        return ResponseEntity.ok(
+                "Dashboard accessed successfully with valid JWT Token");
+    }
+    
 }
 
 
