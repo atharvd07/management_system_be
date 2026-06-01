@@ -5,6 +5,8 @@ import com.example.ad.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/feedback")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -17,6 +19,13 @@ public class FeedbackController {
     public Feedback saveFeedback(
             @RequestBody Feedback feedback) {
 
-        return feedbackService.saveFeedback(feedback);
+        return feedbackService.saveFeedback(
+                feedback);
+    }
+
+    @GetMapping("/all")
+    public List<Feedback> getAllFeedbacks() {
+
+        return feedbackService.getAllFeedbacks();
     }
 }
