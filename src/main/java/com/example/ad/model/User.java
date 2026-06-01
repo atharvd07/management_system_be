@@ -18,6 +18,7 @@ public class User {
     private String email;
     private String password;
     private String profilePhoto; // Will store the file name or path
+    private String role;
     
  // Manually create getter and setter methods
 
@@ -75,5 +76,13 @@ public class User {
 
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
+    }
+    
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

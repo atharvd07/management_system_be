@@ -141,6 +141,9 @@ public ResponseEntity<Map<String, String>> login(
                 "email",
                 foundUser.get().getEmail());
         response.put(
+                "role",
+                foundUser.get().getRole());
+        response.put(
                 "dob",
                 foundUser.get().getDob());
         response.put(

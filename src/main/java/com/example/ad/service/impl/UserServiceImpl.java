@@ -136,7 +136,9 @@ public class UserServiceImpl implements UserService {
             logger.info(
                     "Saving user details into database for email: {}",
                     user.getEmail());
-
+            if (user.getRole() == null) {
+                user.setRole("USER");
+            }
             User savedUser = userRepository.save(user);
 
             logger.info(
@@ -166,6 +168,9 @@ public class UserServiceImpl implements UserService {
                 user.getEmail());
 
         try {
+        	if(user.getRole() == null) {
+        	    user.setRole("USER");
+        	}
 
             User savedUser = userRepository.save(user);
 
