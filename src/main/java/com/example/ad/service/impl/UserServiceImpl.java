@@ -3,82 +3,208 @@ package com.example.ad.service.impl;
 import com.example.ad.model.User;
 import com.example.ad.repository.UserRepository;
 import com.example.ad.service.UserService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private UserRepository userRepository;
 
     // Define the directory where files will be uploaded
     private final String uploadDir = "uploads/";
-//	START: signup
+
+    // START: signup
     @Override
     public User saveUser(User user, MultipartFile profilePhoto) throws IOException {
+
+        logger.info("User registration started for email: {}", user.getEmail());
+
         // Get the absolute path of the uploads directory
         Path path = Paths.get(uploadDir).toAbsolutePath();
         File dir = path.toFile();
 
         // Ensure the directory exists, create it if not
         if (!dir.exists()) {
+
+            logger.info("Upload directory does not exist. Creating directory: {}", path);
+
             boolean created = dir.mkdirs();
+
             if (!created) {
-                throw new IOException("Failed to create upload directory: " + uploadDir);
+
+                logger.error("Failed to create upload directory: {}", uploadDir);
+
+                throw new IOException(
+                        "Failed to create upload directory: " + uploadDir);
             }
+
+            logger.info("Upload directory created successfully");
         }
 
         // Check if the profile photo is not empty
         if (profilePhoto != null && !profilePhoto.isEmpty()) {
-            // Validate the file size (e.g., 5MB max)
-            if (profilePhoto.getSize() > 5000000) {  // 5MB in bytes
-                throw new IOException("File size is too large! Max size is 5MB.");
+
+            logger.info("Profile photo received: {}",
+                    profilePhoto.getOriginalFilename());
+
+            // Validate the file size (5MB max)
+            if (profilePhoto.getSize() > 5000000) {
+
+                logger.warn(
+                        "File size exceeded limit for user: {}, Size: {} bytes",
+                        user.getEmail(),
+                        profilePhoto.getSize());
+
+                throw new IOException(
+                        "File size is too large! Max size is 5MB.");
             }
 
-            // Validate the file type (ensure it's an image)
+            // Validate the file type
             String contentType = profilePhoto.getContentType();
-            if (!contentType.startsWith("image/")) {
-                throw new IOException("Only image files are allowed.");
+
+            if (contentType == null ||
+                    !contentType.startsWith("image/")) {
+
+                logger.warn(
+                        "Invalid file type uploaded by user: {}, Content Type: {}",
+                        user.getEmail(),
+                        contentType);
+
+                throw new IOException(
+                        "Only image files are allowed.");
             }
 
-            // Generate a unique file name using the current timestamp
-            String fileName = System.currentTimeMillis() + "-" + profilePhoto.getOriginalFilename();
+            // Generate unique filename
+            String fileName =
+                    System.currentTimeMillis() + "-"
+                            + profilePhoto.getOriginalFilename();
+
             Path filePath = path.resolve(fileName);
 
-            // Save the file to the uploads directory
             try {
-                profilePhoto.transferTo(filePath.toFile());  // Save the file
-                user.setProfilePhoto(fileName);  // Save only the file name in the user entity
+
+                logger.info("Uploading file: {}", fileName);
+
+                profilePhoto.transferTo(filePath.toFile());
+
+                user.setProfilePhoto(fileName);
+
+                logger.info(
+                        "Profile photo uploaded successfully: {}",
+                        fileName);
+
             } catch (IOException e) {
-                e.printStackTrace();
-                throw new IOException("Could not save file: " + fileName, e);
+
+                logger.error(
+                        "Failed to upload file: {}",
+                        fileName,
+                        e);
+
+                throw new IOException(
+                        "Could not save file: " + fileName,
+                        e);
             }
+        } else {
+
+            logger.info(
+                    "No profile photo uploaded for email: {}",
+                    user.getEmail());
         }
 
-        // Save the user data in the database
-        return userRepository.save(user);
+        try {
+
+            logger.info(
+                    "Saving user details into database for email: {}",
+                    user.getEmail());
+
+            User savedUser = userRepository.save(user);
+
+            logger.info(
+                    "User registered successfully. User ID: {}, Email: {}",
+                    savedUser.getId(),
+                    savedUser.getEmail());
+
+            return savedUser;
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Database error while saving user with email: {}",
+                    user.getEmail(),
+                    e);
+
+            throw e;
+        }
     }
 
-    // New method to save a user without a profile photo
+    // Save user without photo
+    @Override
     public User saveUserWithoutPhoto(User user) {
-        return userRepository.save(user);
+
+        logger.info(
+                "Saving user without profile photo. Email: {}",
+                user.getEmail());
+
+        try {
+
+            User savedUser = userRepository.save(user);
+
+            logger.info(
+                    "User saved successfully. User ID: {}, Email: {}",
+                    savedUser.getId(),
+                    savedUser.getEmail());
+
+            return savedUser;
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "Error while saving user without photo. Email: {}",
+                    user.getEmail(),
+                    e);
+
+            throw e;
+        }
     }
-//	END: signup    
-//	START: login
+
+    // START: login
     @Override
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);  // This will return Optional<User>
+
+        logger.info("Login attempt received for email: {}", email);
+
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+
+            logger.info("User found for email: {}", email);
+
+        } else {
+
+            logger.warn("User not found for email: {}", email);
+        }
+
+        return user;
     }
-//	END: login 
+    // END: login
 }

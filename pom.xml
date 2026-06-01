@@ -94,6 +94,17 @@
     <version>0.11.5</version>
     <scope>runtime</scope>
 </dependency>
+<!-- Spring Boot Starter with logging included -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+</dependency>
+
+<!-- Optional: If you want advanced logging -->
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+</dependency>
 
 	</dependencies>
 	
